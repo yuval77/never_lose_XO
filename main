@@ -1,0 +1,214 @@
+using System;
+
+namespace X_O
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            char[,] board = { { '-', '-', '-' }, { '-', '-', '-' }, { '-', '-', '-' } };
+            int Pspot = 0;
+            int t = 0;
+
+            while (true)
+            {
+                //The situation
+                MatP(board);
+                //
+                //Player's play:
+                Console.WriteLine("insert the number of the spot you want to place X");
+                Pspot = int.Parse(Console.ReadLine());
+                board = Turn(Pspot, board, 'X');
+                t++;
+                //
+                //Did player win?
+                if (Victory(board, 'X'))
+                {
+                    Console.WriteLine("How the fuck did you win?!");
+                    MatP(board); break;
+                }
+                //Bot:
+                board = Bot(board, t);
+                t++;
+                //
+                //Did bot win?
+                if (Victory(board, 'O'))
+                {
+                    Console.WriteLine("EZ");
+                    MatP(board); break;
+                }
+                //
+                //Was Draw?
+                if (IsFull(board))
+                {
+                    Console.WriteLine("----------Draw----------");
+                    MatP(board); break;
+                }
+                //
+            }
+            Console.ReadLine();
+        }
+
+        static char[,] Bot(char[,] board, int t)
+        {
+            int turn = 0;
+
+            if (t == 1)
+            {
+                if (board[1, 1] == '-') turn = 5;
+                else turn = 1;
+            }
+
+            if (turn == 0) turn = AlmostWin(board);
+
+            if (turn == 0 && t == 3)
+            {
+                if ((board[0, 0] == 'X') && (board[2, 2] == 'X')) turn = 2;
+                if ((board[0, 2] == 'X') && (board[2, 0] == 'X')) turn = 2;
+
+                if ((board[0, 1] == 'X') && (board[1, 0] == 'X')) turn = 1;
+                if ((board[0, 1] == 'X') && (board[1, 2] == 'X')) turn = 3;
+                if ((board[2, 1] == 'X') && (board[1, 0] == 'X')) turn = 7;
+                if ((board[2, 1] == 'X') && (board[1, 2] == 'X')) turn = 9;
+
+                if ((board[1, 1] == 'X') && (board[2, 2] == 'X')) turn = 3;
+
+                if ((board[2, 0] == 'X') && (board[1, 2] == 'X')) turn = 9;
+                if ((board[2, 0] == 'X') && (board[0, 1] == 'X')) turn = 7;
+                if ((board[0, 2] == 'X') && (board[1, 0] == 'X')) turn = 1;
+                if ((board[0, 2] == 'X') && (board[2, 1] == 'X')) turn = 9;
+                if ((board[2, 2] == 'X') && (board[1, 0] == 'X')) turn = 3;
+                if ((board[2, 2] == 'X') && (board[0, 1] == 'X')) turn = 7;
+                if ((board[0, 0] == 'X') && (board[1, 2] == 'X')) turn = 3;
+                if ((board[0, 0] == 'X') && (board[2, 1] == 'X')) turn = 7;
+            }
+
+            if (turn == 0) turn = OtherTurn(board);
+
+            return Turn(turn, board, 'O');
+        }
+
+        static char[,] Turn(int spot, char[,] board, char c)
+        {
+            if (spot == 1) board[0, 0] = c;
+            else if (spot == 2) board[0, 1] = c;
+            else if (spot == 3) board[0, 2] = c;
+            else if (spot == 4) board[1, 0] = c;
+            else if (spot == 5) board[1, 1] = c;
+            else if (spot == 6) board[1, 2] = c;
+            else if (spot == 7) board[2, 0] = c;
+            else if (spot == 8) board[2, 1] = c;
+            else board[2, 2] = c;
+
+            return board;
+        }
+        static int OtherTurn(char[,] board)
+        {
+            int turn = 0;
+            if (board[0, 0] == '-') turn = 1;
+            else if (board[0, 1] == '-') turn = 2;
+            else if (board[0, 2] == '-') turn = 3;
+            else if (board[1, 0] == '-') turn = 4;
+            else if (board[1, 1] == '-') turn = 5;
+            else if (board[1, 2] == '-') turn = 6;
+            else if (board[2, 0] == '-') turn = 7;
+            else if (board[2, 1] == '-') turn = 8;
+            else turn = 9;
+            return turn;
+        }
+
+        static bool IsFull(char[,] board)
+        {
+            if ((board[0, 0] != '-') && (board[0, 1] != '-') && (board[0, 2] != '-') &&
+                (board[1, 0] != '-') && (board[1, 1] != '-') && (board[1, 2] != '-') &&
+                (board[2, 0] != '-') && (board[2, 1] != '-') && (board[2, 2] != '-'))
+                return true;
+            else
+                return false;
+        }
+        static int AlmostWin(char[,] board)
+        {
+            if ((board[0, 1] == 'O') && (board[0, 2] == 'O') && (board[0, 0] == '-')) return 1;
+            else if ((board[0, 0] == 'O') && (board[0, 2] == 'O') && (board[0, 1] == '-')) return 2;
+            else if ((board[0, 0] == 'O') && (board[0, 1] == 'O') && (board[0, 2] == '-')) return 3;
+            else if ((board[1, 1] == 'O') && (board[1, 2] == 'O') && (board[1, 0] == '-')) return 4;
+            else if ((board[1, 0] == 'O') && (board[1, 2] == 'O') && (board[1, 1] == '-')) return 5;
+            else if ((board[1, 0] == 'O') && (board[1, 1] == 'O') && (board[1, 2] == '-')) return 6;
+            else if ((board[2, 1] == 'O') && (board[2, 2] == 'O') && (board[2, 0] == '-')) return 7;
+            else if ((board[2, 0] == 'O') && (board[2, 2] == 'O') && (board[2, 1] == '-')) return 8;
+            else if ((board[2, 0] == 'O') && (board[2, 1] == 'O') && (board[2, 2] == '-')) return 9;
+
+            else if ((board[1, 0] == 'O') && (board[2, 0] == 'O') && (board[0, 0] == '-')) return 1;
+            else if ((board[1, 1] == 'O') && (board[2, 1] == 'O') && (board[0, 1] == '-')) return 2;
+            else if ((board[1, 2] == 'O') && (board[2, 2] == 'O') && (board[0, 2] == '-')) return 3;
+            else if ((board[0, 0] == 'O') && (board[2, 0] == 'O') && (board[1, 0] == '-')) return 4;
+            else if ((board[0, 1] == 'O') && (board[2, 1] == 'O') && (board[1, 1] == '-')) return 5;
+            else if ((board[0, 2] == 'O') && (board[2, 2] == 'O') && (board[1, 2] == '-')) return 6;
+            else if ((board[0, 0] == 'O') && (board[1, 0] == 'O') && (board[2, 0] == '-')) return 7;
+            else if ((board[0, 1] == 'O') && (board[1, 1] == 'O') && (board[2, 1] == '-')) return 8;
+            else if ((board[0, 2] == 'O') && (board[1, 2] == 'O') && (board[2, 2] == '-')) return 9;
+
+            else if ((board[2, 2] == 'O') && (board[1, 1] == 'O') && (board[0, 0] == '-')) return 1;
+            else if ((board[2, 0] == 'O') && (board[1, 1] == 'O') && (board[0, 2] == '-')) return 3;
+            else if ((board[0, 0] == 'O') && (board[2, 2] == 'O') && (board[1, 1] == '-')) return 5;
+            else if ((board[0, 0] == 'O') && (board[2, 2] == 'O') && (board[1, 1] == '-')) return 5;
+            else if ((board[0, 2] == 'O') && (board[1, 1] == 'O') && (board[2, 0] == '-')) return 7;
+            else if ((board[0, 0] == 'O') && (board[1, 1] == 'O') && (board[2, 2] == '-')) return 9;
+
+
+            else if ((board[0, 1] == 'X') && (board[0, 2] == 'X') && (board[0, 0] == '-')) return 1;
+            else if ((board[0, 0] == 'X') && (board[0, 2] == 'X') && (board[0, 1] == '-')) return 2;
+            else if ((board[0, 0] == 'X') && (board[0, 1] == 'X') && (board[0, 2] == '-')) return 3;
+            else if ((board[1, 1] == 'X') && (board[1, 2] == 'X') && (board[1, 0] == '-')) return 4;
+            else if ((board[1, 0] == 'X') && (board[1, 2] == 'X') && (board[1, 1] == '-')) return 5;
+            else if ((board[1, 0] == 'X') && (board[1, 1] == 'X') && (board[1, 2] == '-')) return 6;
+            else if ((board[2, 1] == 'X') && (board[2, 2] == 'X') && (board[2, 0] == '-')) return 7;
+            else if ((board[2, 0] == 'X') && (board[2, 2] == 'X') && (board[2, 1] == '-')) return 8;
+            else if ((board[2, 0] == 'X') && (board[2, 1] == 'X') && (board[2, 2] == '-')) return 9;
+
+            else if ((board[1, 0] == 'X') && (board[2, 0] == 'X') && (board[0, 0] == '-')) return 1;
+            else if ((board[1, 1] == 'X') && (board[2, 1] == 'X') && (board[0, 1] == '-')) return 2;
+            else if ((board[1, 2] == 'X') && (board[2, 2] == 'X') && (board[0, 2] == '-')) return 3;
+            else if ((board[0, 0] == 'X') && (board[2, 0] == 'X') && (board[1, 0] == '-')) return 4;
+            else if ((board[0, 1] == 'X') && (board[2, 1] == 'X') && (board[1, 1] == '-')) return 5;
+            else if ((board[0, 2] == 'X') && (board[2, 2] == 'X') && (board[1, 2] == '-')) return 6;
+            else if ((board[0, 0] == 'X') && (board[1, 0] == 'X') && (board[2, 0] == '-')) return 7;
+            else if ((board[0, 1] == 'X') && (board[1, 1] == 'X') && (board[2, 1] == '-')) return 8;
+            else if ((board[0, 2] == 'X') && (board[1, 2] == 'X') && (board[2, 2] == '-')) return 9;
+
+            else if ((board[2, 2] == 'X') && (board[1, 1] == 'X') && (board[0, 0] == '-')) return 1;
+            else if ((board[2, 0] == 'X') && (board[1, 1] == 'X') && (board[0, 2] == '-')) return 3;
+            else if ((board[0, 0] == 'X') && (board[2, 2] == 'X') && (board[1, 1] == '-')) return 5;
+            else if ((board[0, 0] == 'X') && (board[2, 2] == 'X') && (board[1, 1] == '-')) return 5;
+            else if ((board[0, 2] == 'X') && (board[1, 1] == 'X') && (board[2, 0] == '-')) return 7;
+            else if ((board[0, 0] == 'X') && (board[1, 1] == 'X') && (board[2, 2] == '-')) return 9;
+
+            else return 0;
+        }
+        static bool Victory(char[,] board, char c)
+        {
+            if      ((board[0, 0] == c) && (board[0, 1] == c) && (board[0, 2] == c)) return true;
+            else if ((board[1, 0] == c) && (board[1, 1] == c) && (board[1, 2] == c)) return true;
+            else if ((board[2, 0] == c) && (board[2, 1] == c) && (board[2, 2] == c)) return true;
+            else if ((board[0, 0] == c) && (board[1, 0] == c) && (board[2, 0] == c)) return true;
+            else if ((board[0, 1] == c) && (board[1, 1] == c) && (board[2, 1] == c)) return true;
+            else if ((board[0, 2] == c) && (board[1, 2] == c) && (board[2, 2] == c)) return true;
+            else if ((board[0, 0] == c) && (board[1, 1] == c) && (board[2, 2] == c)) return true;
+            else if ((board[2, 0] == c) && (board[1, 1] == c) && (board[0, 2] == c)) return true;
+            else return false;
+        }
+        static void MatP(char[,] a)
+        {
+            for (int i = 0; i < a.GetLength(0); i++)
+            {
+                for (int j = 0; j < a.GetLength(1); j++)
+                    Console.Write("{0,4}", a[i, j]);
+                Console.Write("{0,8}", 1+3*i);
+                Console.Write("{0,4}", 2+3*i);
+                Console.Write("{0,4}", 3+3*i);
+
+                Console.WriteLine();
+            }
+        }
+    }
+}
